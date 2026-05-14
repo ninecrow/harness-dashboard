@@ -15,6 +15,9 @@
 - TypeScript 编译通过
 - Vite 构建成功
 - 构建产物: dashboard/dist/
+  - index.html (479 bytes)
+  - assets/index-u4v1lcaU.js (168K)
+  - assets/index-BRFJXa62.css (15K)
 
 ### Docker 构建 ⚠️
 - API 镜像: 构建成功（本地缓存）
@@ -23,33 +26,48 @@
 
 ### 本地测试 ✅
 - API: http://localhost:8000
-- Dashboard: 需要手动启动（端口 3000 被占用）
+- Dashboard: 构建产物已就绪，端口 3000 已释放
 
-## 手动测试步骤
+## 启动命令
 
-1. 启动 API 服务
-   ```bash
-   cd api
-   python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
-   ```
+### 1. 启动 API 服务
+```bash
+cd api
+python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
 
-2. 启动前端服务器
-   ```bash
-   cd dashboard/dist
-   python3 -m http.server 3001
-   ```
+### 2. 启动前端服务
+```bash
+cd dashboard/dist
+python3 -m http.server 3000
+```
 
-3. 访问 Dashboard
-   - http://localhost:3001
+### 3. 访问 Dashboard
+- http://localhost:3000
+
+## API 端点测试
+
+```bash
+# 健康检查
+curl http://localhost:8000/health
+
+# Dashboard 数据
+curl http://localhost:8000/api/v1/dashboard
+
+# 模型状态
+curl http://localhost:8000/api/v1/models
+
+# Agent 拓扑
+curl http://localhost:8000/api/v1/agents/nodes
+```
 
 ## 已知问题
 
 1. Docker Hub 连接不稳定，需要配置镜像源
-2. 端口 3000 可能被其他服务占用
-3. 前端需要配置 API 代理
+2. 前端 API 调用需要处理 CORS
 
 ## 后续优化
 
 1. 配置 Docker 国内镜像源
-2. 添加 docker-compose 健康检查
-3. 配置 Nginx 反向代理
+2. 添加 Nginx 反向代理
+3. 配置前端 API 代理
