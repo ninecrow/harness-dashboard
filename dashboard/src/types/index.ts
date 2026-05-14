@@ -102,3 +102,11 @@ export interface DashboardData {
   skills: SkillUsage[];
   alerts: Array<Record<string, any>>;
 }
+
+export interface Alert {
+  id: string;
+  message: string;
+  severity: string;
+  timestamp: string;
+  acknowledged: boolean;
+}

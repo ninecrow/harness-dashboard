@@ -1,63 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Activity, 
-  Cpu, 
-  GitBranch, 
-  Users, 
-  DollarSign, 
-  Zap,
-  Settings,
-  Bell,
-  Download
-} from 'lucide-react';
-import SystemStatusCard from './components/SystemStatusCard';
-import ModelStatusPanel from './components/ModelStatusPanel';
-import TaskFlowVisualizer from './components/TaskFlowVisualizer';
-import AgentTopology from './components/AgentTopology';
-import CostMetricsChart from './components/CostMetricsChart';
-import ExecutionTimeline from './components/ExecutionTimeline';
-import SkillsUsageChart from './components/SkillsUsageChart';
-import AlertPanel from './components/AlertPanel';
-import { DashboardData } from './types';
+import React, { useState, useEffect } from 'react'
+import { Activity, Cpu, GitBranch, Users, DollarSign, Zap, Settings, Bell, Download } from 'lucide-react'
+import SystemStatusCard from './components/SystemStatusCard'
+import ModelStatusPanel from './components/ModelStatusPanel'
+import TaskFlowVisualizer from './components/TaskFlowVisualizer'
+import AgentTopology from './components/AgentTopology'
+import CostMetricsChart from './components/CostMetricsChart'
+import ExecutionTimeline from './components/ExecutionTimeline'
+import SkillsUsageChart from './components/SkillsUsageChart'
+import AlertPanel from './components/AlertPanel'
+import { DashboardData, Alert } from './types'
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-const REFRESH_INTERVAL = parseInt(process.env.REACT_APP_REFRESH_INTERVAL || '30000');
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const REFRESH_INTERVAL = parseInt(import.meta.env.VITE_REFRESH_INTERVAL || '30000')
 
 function App() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/v1/dashboard`);
+      const response = await fetch(`${API_URL}/api/v1/dashboard`)
       if (!response.ok) {
-        throw new Error('Failed to fetch data');
+        throw new Error('Failed to fetch data')
       }
-      const result = await response.json();
-      setData(result);
-      setLastUpdate(new Date());
-      setError(null);
+      const result = await response.json()
+      setData(result)
+      setLastUpdate(new Date())
+      setError(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, REFRESH_INTERVAL);
-    return () => clearInterval(interval);
-  }, []);
+    fetchData()
+    const interval = setInterval(fetchData, REFRESH_INTERVAL)
+    return () => clearInterval(interval)
+  }, [])
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -66,7 +56,7 @@ function App() {
         <div className="text-center">
           <h2 className="text-xl font-semibold text-red-600 mb-2">加载失败</h2>
           <p className="text-gray-600">{error}</p>
-          <button 
+          <button
             onClick={fetchData}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
@@ -74,7 +64,7 @@ function App() {
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -90,12 +80,12 @@ function App() {
                 <p className="text-xs text-gray-500">Dashboard v1.0.0</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-500">
                 上次更新: {lastUpdate.toLocaleTimeString()}
               </span>
-              <button 
+              <button
                 onClick={fetchData}
                 className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
               >
@@ -116,25 +106,25 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* System Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <SystemStatusCard 
+          <SystemStatusCard
             title="系统状态"
             value={data?.system.status || '未知'}
             icon={<Activity className="w-6 h-6" />}
             status="running"
           />
-          <SystemStatusCard 
+          <SystemStatusCard
             title="活跃会话"
             value={data?.system.active_sessions.toString() || '0'}
             icon={<Users className="w-6 h-6" />}
             status="normal"
           />
-          <SystemStatusCard 
+          <SystemStatusCard
             title="待处理任务"
             value={data?.system.pending_tasks.toString() || '0'}
             icon={<GitBranch className="w-6 h-6" />}
             status={data?.system.pending_tasks && data.system.pending_tasks > 5 ? 'warning' : 'normal'}
           />
-          <SystemStatusCard 
+          <SystemStatusCard
             title="今日成本"
             value={`$${data?.costs.total_cost_usd.toFixed(2) || '0.00'}`}
             icon={<DollarSign className="w-6 h-6" />}
@@ -223,7 +213,7 @@ function App() {
                   告警信息
                 </h2>
               </div>
-              <AlertPanel alerts={data?.alerts || []} />
+              <AlertPanel alerts={data?.alerts as Alert[] || []} />
             </section>
 
             {/* Quick Actions */}
@@ -246,7 +236,7 @@ function App() {
         </div>
       </main>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
